@@ -2,11 +2,11 @@
 Product beans = new Product("Chocolate-covered Beans", 2, "A12");
 vendingMachine.StockItem(beans, 3);
 vendingMachine.StockFloat(1, 4);
-string vendResult = vendingMachine.VendItem("A12", new List<int> { 10 });
-Console.WriteLine(vendResult);
+Console.WriteLine(vendingMachine.VendItem("A12", new List<int> { 10 }));
 class VendingMachine
 {
     private int _serialNumber;
+    public int SerialNumber { get { return _serialNumber; } }
     private Dictionary<int, int> MoneyFloat { get; }
     private Dictionary<Product, int> Inventory { get; }
     public VendingMachine(int serialNumber)
@@ -62,52 +62,58 @@ class VendingMachine
         if (tempProduct == null)
         {
             return $"Error, no item with code {code}";
-        }
-        if (Inventory[tempProduct] == 0)
+        } 
+        else if (Inventory[tempProduct] == 0)
         {
             return "Error: Item is out of stock";
-        }
-        int total = 0;
-        foreach (int amount in money)
-        {
-            total += amount;
-        }
-        if (total < tempProduct.Price)
-        {
-            return "Error: insufficient money provided";
-        } else if (total == tempProduct.Price)
-        {
-            return $"Please enjoy your '{tempProduct.Name}'. No change required.";
-        }
+        } 
         else
         {
-            int leftAmount = total - tempProduct.Price;
-            Dictionary<int, int> returnMoneyList = new Dictionary<int, int>();
-            List<int> allMoney = new List<int>(MoneyFloat.Keys);
-            // Sort from big to small
-            allMoney.Sort((a, b) => b.CompareTo(a));
-            foreach (int moneyList in allMoney)
+            int total = 0;
+            foreach (int amount in money)
             {
-                int count = MoneyFloat[moneyList];
-                if (leftAmount >= moneyList && count > 0)
+                total += amount;
+            }
+            if (total < tempProduct.Price)
+            {
+                return "Error: insufficient money provided";
+            }
+            else if (total == tempProduct.Price)
+            {
+                return $"Please enjoy your '{tempProduct.Name}'. No change required.";
+            }
+            else
+            {
+                int leftAmount = total - tempProduct.Price;
+                Dictionary<int, int> returnMoneyList = new Dictionary<int, int>();
+                List<int> allMoney = new List<int>(MoneyFloat.Keys);
+                // Sort from big to small
+                allMoney.Sort();
+                allMoney.Reverse();
+                // allMoney.Sort((a, b) => b.CompareTo(a));
+                foreach (int moneyList in allMoney)
                 {
-                    int dispense = leftAmount / moneyList;
-                    if (count < dispense)
+                    int count = MoneyFloat[moneyList];
+                    if (leftAmount >= moneyList && count > 0)
                     {
-                        dispense = count;
+                        int dispense = leftAmount / moneyList;
+                        if (count < dispense)
+                        {
+                            dispense = count;
+                        }
+                        MoneyFloat[moneyList] -= dispense;
+                        leftAmount -= moneyList * dispense;
+                        returnMoneyList.Add(moneyList, dispense);
                     }
-                    MoneyFloat[moneyList] -= dispense;
-                    leftAmount -= moneyList * dispense;
-                    returnMoneyList.Add(moneyList, dispense);
                 }
+                if (leftAmount > 0)
+                {
+                    return "Unable to dispense change.";
+                }
+                Inventory[tempProduct]--;
+                string change = printChange(returnMoneyList);
+                return $"Please enjoy your '{tempProduct.Name}' and take your change of {change}";
             }
-            if (leftAmount > 0)
-            {
-                return "Unable to dispense change.";
-            }
-            Inventory[tempProduct]--;
-            string change = printChange(returnMoneyList);
-            return $"Please enjoy your '{tempProduct.Name}' and take your change of {change}";
         }
     }
     private string printChange(Dictionary<int, int> changeReturned)
@@ -115,20 +121,23 @@ class VendingMachine
         string change = "";
         foreach (KeyValuePair<int, int> returnedIteration in changeReturned)
         {
-            change += $"${returnedIteration.Key} x {returnedIteration.Value}, ";
+            change += $"${returnedIteration.Key}x{returnedIteration.Value}, ";
         }
         return change;
     }
 }
 class Product
 {
-    public string Name { get; }
-    public int Price { get; }
-    public string Code { get; }
+    private string _name;
+    public string Name { get { return _name; } }
+    private int _price;
+    public int Price { get { return _price; } }
+    private string _code;
+    public string Code { get { return _code; } }
     public Product(string name, int price, string code)
     {
-        Name = name;
-        Price = price;
-        Code = code;
+        _name = name;
+        _price = price;
+        _code = code;
     }
 }
