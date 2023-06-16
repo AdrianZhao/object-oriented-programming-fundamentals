@@ -1,17 +1,18 @@
-﻿VendingMachine vendingMachine = new VendingMachine(123);
-Product beans = new Product("Chocolate-covered Beans", 2, "A12");
-vendingMachine.StockItem(beans, 3);
-vendingMachine.StockFloat(1, 4);
-Console.WriteLine(vendingMachine.VendItem("A12", new List<int> { 10 }));
+﻿VendingMachine vendingMachine = new VendingMachine();
+Console.WriteLine(vendingMachine.SerialNumber);
+VendingMachine vendingMachine2 = new VendingMachine();
+Console.WriteLine(vendingMachine2.SerialNumber);
 class VendingMachine
 {
-    private int _serialNumber;
+    private static int _serialNumber = 0;
     public int SerialNumber { get { return _serialNumber; } }
+    private string? _barcode;
+    public string? Barcode { get { return _barcode; } }
     private Dictionary<int, int> MoneyFloat { get; }
     private Dictionary<Product, int> Inventory { get; }
-    public VendingMachine(int serialNumber)
-    { 
-        _serialNumber = serialNumber;
+    public VendingMachine()
+    {
+        _serialNumber++;
         MoneyFloat = new Dictionary<int, int>
         {
             { 1, 20 },
